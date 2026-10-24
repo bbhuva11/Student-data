@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            padding: 20px 40px;
+            color: #000;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-add-primary {
+            background-color: #28a745;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-add-primary:hover {
+            background-color: #218838;
+        }
+
+        .btn-recycle {
+            background-color: #dc3545;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-recycle:hover {
+            background-color: #c82333;
+        }
+
+        .btn-recycle.active-view {
+            background-color: #007bff;
+        }
+
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Filter Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .toolbar-left, .toolbar-center, .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar select, .toolbar input {
+            padding: 5px 8px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .toolbar input {
+            width: 180px;
+        }
+
+        /* Student Table */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #e0e0e0;
+        }
+
+        .student-table th, .student-table td {
+            border: 1px solid #e0e0e0;
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .student-table th {
+            background-color: #f5f5f5;
+            font-weight: 700;
+            color: #000;
+            user-select: none;
+        }
+
+        .student-table th.sortable {
+            cursor: pointer;
+        }
+
+        .col-profile {
+            width: 80px;
+            text-align: center;
+        }
+
+        .profile-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid #cccccc;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+
+        .col-action {
+            width: 150px;
+            white-space: nowrap;
+        }
+
+        .btn-edit {
+            background-color: #ffc107;
+            color: #000;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-restore {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .btn-perm-delete {
+            background-color: #bd2130;
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sort-arrow {
+            font-size: 10px;
+            margin-left: 3px;
+            color: #aaa;
+        }
+
+        .sort-arrow.active {
+            color: #007bff;
+        }
+
+        /* Pagination Controls */
+        .pagination-bar {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-btn {
+            border: 1px solid #e0e0e0;
+            background-color: #ffffff;
+            color: #333;
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-right: -1px;
+        }
+
+        .page-btn:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .page-btn:last-child {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .page-btn.active {
+            background-color: #007bff;
+            color: #ffffff;
+            border-color: #007bff;
+        }
+
+        .page-btn:disabled {
+            color: #cccccc;
+            cursor: not-allowed;
+            background-color: #fafafa;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            display: none;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .alert-banner-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-banner-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background-color: #fff;
+            width: 420px;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-card h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .error-text {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Main Title Header -->
+        <div class="header">
+            <h1>Student Management</h1>
+            <div class="header-actions">
+                <button class="btn-recycle" id="toggleRecycleBtn">Recycle Bin</button>
+                <button class="btn-add-primary" id="openAddModalBtn">Add New Student</button>
+            </div>
+        </div>
+
+        <div id="globalAlert" class="alert-banner"></div>
+
+        <h2 class="section-title" id="pageSectionTitle">All Students</h2>
+
+        <!-- Toolbar Controls -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                Show 
+                <select id="recordsPerPage">
+                    <option value="5" selected>5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                </select> 
+                records per page
+            </div>
+
+            <div class="toolbar-center">
+                Go to Page: 
+                <select id="pageSelect">
+                    <option value="1">Page 1</option>
+                </select>
+            </div>
+
+            <div class="toolbar-right">
+                Search: 
+                <input type="text" id="searchInput" placeholder="Search students...">
+            </div>
+        </div>
+
+        <!-- Student Data Table -->
+        <div class="table-container">
+            <table class="student-table">
+                <thead>
+                    <tr>
+                        <th class="col-profile">Profile</th>
+                        <th class="sortable" data-sort="rollno"><span class="sort-arrow sort-up active">▲</span> Roll No <span class="sort-arrow sort-down">▼</span></th>
+                        <th class="sortable" data-sort="name"><span class="sort-arrow sort-up">▲</span> Name <span class="sort-arrow sort-down">▼</span></th>
+                        <th class="sortable" data-sort="standard"><span class="sort-arrow sort-up">▲</span> Standard <span class="sort-arrow sort-down">▼</span></th>
+                        <th class="sortable" data-sort="email"><span class="sort-arrow sort-up">▲</span> Email <span class="sort-arrow sort-down">▼</span></th>
+                        <th class="sortable" data-sort="phone"><span class="sort-arrow sort-up">▲</span> Phone <span class="sort-arrow sort-down">▼</span></th>
+                        <th class="col-action">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align:center;">Loading students...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Bar -->
+        <div class="pagination-bar" id="pageControls"></div>
+    </div>
+
+    <!-- Modal Form Dialog -->
+    <div class="modal" id="studentModal">
+        <div class="modal-card">
+            <h3 id="modalTitle">Add Student</h3>
+            <div id="formAlert" style="display:none; color: red; margin-bottom: 10px; font-size: 13px;"></div>
+
+            <form id="contactForm" action="save_student.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="mode" id="mode" value="insert">
+                <input type="hidden" name="existing_image" id="existing_image" value="">
+
+                <div class="form-group">
+                    <label>Roll No</label>
+                    <input type="text" name="rollno" id="rollno">
+                    <span class="error-text" id="rollnoError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" id="name">
+                    <span class="error-text" id="nameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Standard</label>
+                    <input type="text" name="standard" id="standard">
+                    <span class="error-text" id="standardError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="email">
+                    <span class="error-text" id="emailError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" name="phone" id="phone">
+                    <span class="error-text" id="phoneError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Profile Image</label>
+                    <input type="file" name="profile_image" id="profile_image" accept="image/*">
+                    <div id="currentImagePreview"></div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelBtn" style="padding: 6px 12px; cursor: pointer;">Cancel</button>
+                    <button type="submit" id="submitBtn" class="btn-add-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="script.js?v=1.0.4"></script>
+</body>
+</html>
